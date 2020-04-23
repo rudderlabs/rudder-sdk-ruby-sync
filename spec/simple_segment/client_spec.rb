@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe SimpleSegment::Client do
+describe RudderAnalyticsSync::Client do
   subject(:client) do
     described_class.new(write_key: 'WRITE_KEY')
   end
@@ -46,7 +46,7 @@ describe SimpleSegment::Client do
           'employer' => 'Planet Express',
           'library' => {
             'name' => 'simple_segment',
-            'version' => SimpleSegment::VERSION
+            'version' => RudderAnalyticsSync::VERSION
           }
         },
         'integrations' => {
@@ -56,7 +56,7 @@ describe SimpleSegment::Client do
         'sentAt' => now.iso8601,
         'messageId' => 'message-id'
       }
-      request_stub = stub_request(:post, 'https://api.segment.io/v1/identify')
+      request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/identify')
                      .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
 
       Timecop.freeze(now) do
@@ -67,7 +67,7 @@ describe SimpleSegment::Client do
 
     context 'input checks' do
       before(:example) do
-        stub_request(:post, 'https://api.segment.io/v1/identify')
+        stub_request(:post, 'https://hosted.rudderlabs.com/v1/identify')
           .with(basic_auth: ['WRITE_KEY', ''])
       end
 
@@ -132,7 +132,7 @@ describe SimpleSegment::Client do
           'crew' => %w[Bender Fry Leela],
           'library' => {
             'name' => 'simple_segment',
-            'version' => SimpleSegment::VERSION
+            'version' => RudderAnalyticsSync::VERSION
           }
         },
         'integrations' => {
@@ -142,7 +142,7 @@ describe SimpleSegment::Client do
         'sentAt' => now.iso8601,
         'messageId' => 'message-id'
       }
-      request_stub = stub_request(:post, 'https://api.segment.io/v1/track')
+      request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/track')
                      .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
 
       Timecop.freeze(now) do
@@ -153,7 +153,7 @@ describe SimpleSegment::Client do
 
     context 'input checks' do
       before(:example) do
-        stub_request(:post, 'https://api.segment.io/v1/track').with(basic_auth: ['WRITE_KEY', ''])
+        stub_request(:post, 'https://hosted.rudderlabs.com/v1/track').with(basic_auth: ['WRITE_KEY', ''])
       end
 
       it 'errors without an event name' do
@@ -210,7 +210,7 @@ describe SimpleSegment::Client do
           'company' => 'Planet Express',
           'library' => {
             'name' => 'simple_segment',
-            'version' => SimpleSegment::VERSION
+            'version' => RudderAnalyticsSync::VERSION
           }
         },
         'integrations' => {
@@ -220,7 +220,7 @@ describe SimpleSegment::Client do
         'sentAt' => now.iso8601,
         'messageId' => 'message-id'
       }
-      request_stub = stub_request(:post, 'https://api.segment.io/v1/page')
+      request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/page')
                      .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
 
       Timecop.freeze(now) do
@@ -231,7 +231,7 @@ describe SimpleSegment::Client do
 
     context 'input checks' do
       before(:example) do
-        stub_request(:post, 'https://api.segment.io/v1/page').with(basic_auth: ['WRITE_KEY', ''])
+        stub_request(:post, 'https://hosted.rudderlabs.com/v1/page').with(basic_auth: ['WRITE_KEY', ''])
       end
 
       it 'errors with user_id and anonymous_id blank' do
@@ -284,7 +284,7 @@ describe SimpleSegment::Client do
           'locale' => 'AL1',
           'library' => {
             'name' => 'simple_segment',
-            'version' => SimpleSegment::VERSION
+            'version' => RudderAnalyticsSync::VERSION
           }
         },
         'integrations' => {
@@ -294,7 +294,7 @@ describe SimpleSegment::Client do
         'sentAt' => now.iso8601,
         'messageId' => 'message-id'
       }
-      request_stub = stub_request(:post, 'https://api.segment.io/v1/group')
+      request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/group')
                      .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
 
       Timecop.freeze(now) do
@@ -305,7 +305,7 @@ describe SimpleSegment::Client do
 
     context 'input checks' do
       before(:example) do
-        stub_request(:post, 'https://api.segment.io/v1/group').with(basic_auth: ['WRITE_KEY', ''])
+        stub_request(:post, 'https://hosted.rudderlabs.com/v1/group').with(basic_auth: ['WRITE_KEY', ''])
       end
 
       it 'errors without a group id' do
@@ -346,7 +346,7 @@ describe SimpleSegment::Client do
           'locale' => 'AL1',
           'library' => {
             'name' => 'simple_segment',
-            'version' => SimpleSegment::VERSION
+            'version' => RudderAnalyticsSync::VERSION
           }
         },
         'integrations' => {
@@ -356,7 +356,7 @@ describe SimpleSegment::Client do
         'sentAt' => now.iso8601,
         'messageId' => 'message-id'
       }
-      request_stub = stub_request(:post, 'https://api.segment.io/v1/alias')
+      request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/alias')
                      .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
 
       Timecop.freeze(now) do
@@ -367,7 +367,7 @@ describe SimpleSegment::Client do
 
     context 'input checks' do
       before(:example) do
-        stub_request(:post, 'https://api.segment.io/v1/alias').with(basic_auth: ['WRITE_KEY', ''])
+        stub_request(:post, 'https://hosted.rudderlabs.com/v1/alias').with(basic_auth: ['WRITE_KEY', ''])
       end
 
       it 'errors without a previous id' do
@@ -394,7 +394,7 @@ describe SimpleSegment::Client do
 
   describe '#batch' do
     it 'batches events into a single request' do
-      request_stub = stub_request(:post, 'https://api.segment.io/v1/batch')
+      request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/batch')
                      .with do |request|
                        JSON.parse(request.body)['batch'].length == 2
                      end

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module SimpleSegment
+module RudderAnalyticsSync
   class Batch
-    include SimpleSegment::Utils
+    include RudderAnalyticsSync::Utils
 
     attr_reader :client, :payload
 

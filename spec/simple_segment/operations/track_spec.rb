@@ -2,9 +2,9 @@
 
 require 'spec_helper'
 
-describe SimpleSegment::Operations::Track do
-  describe '#build_payload' do
-    let(:client) { SimpleSegment::Client.new(write_key: 'key') }
+describe RudderAnalyticsSync::Operations::Track do
+  context 'timestamps' do
+    let(:client) { RudderAnalyticsSync::Client.new(write_key: 'key') }
 
     it 'uses an empty hash if no properties were provided' do
       payload = described_class.new(
@@ -16,7 +16,6 @@ describe SimpleSegment::Operations::Track do
       expect(payload[:properties]).to eq({})
     end
 
-    context 'timestamps' do
       it 'works with Time objects' do
         payload = described_class.new(
           client,
@@ -50,14 +49,13 @@ describe SimpleSegment::Operations::Track do
         end.to raise_error(ArgumentError)
       end
 
-      it 'works with stubed calls' do
-        stubed_client = SimpleSegment::Client.new(write_key: 'key', stub: true)
-        expect(stubed_client.track(
-          event: 'event',
-          user_id: 'id',
-          timestamp: Time.new(2016, 6, 27, 23, 4, 20, '+03:00')
-        )[:status]).to eq(200)
-      end
+    it 'works with stubed calls' do
+      stubed_client = RudderAnalyticsSync::Client.new(write_key: 'key', stub: true)
+      expect(stubed_client.track(
+        event: 'event',
+        user_id: 'id',
+        timestamp: Time.new(2016, 6, 27, 23, 4, 20, '+03:00')
+      )[:status]).to eq(200)      
     end
   end
 end
