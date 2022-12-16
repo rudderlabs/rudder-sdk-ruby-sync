@@ -4,6 +4,21 @@
 
 More information on RudderStack can be found [here](https://github.com/rudderlabs/rudder-server).
 
+## Status
+
+The gem supports all existing functionality of analytics-ruby:
+
+- `analytics.track(...)`
+- `analytics.identify(...)`
+- `analytics.group(...)`
+- `analytics.page(...)`
+- `analytics.alias(...)`
+- `analytics.flush` (no op for backwards compatibility with the official gem)
+
+In addition it offers the ability to manually batch events with [analytics.batch](#batching).
+
+The plan is to be an drop in replacement for the official gem, so if you find inconsistencies with `analytics-ruby` feel free to file an issue.
+
 ## Installation
 
 Add this line to your application's Gemfile:

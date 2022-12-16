@@ -1,12 +1,21 @@
+AllCops:
+  NewCops: enable
+
 Metrics/BlockLength:
   Exclude:
-    - '**/*_spec.rb'
+    - 'spec/**/*_spec.rb'
 
-Metrics/LineLength:
-  Max: 100
+Style/FormatStringToken:
+  Enabled: false
+
+Layout/LineLength:
+  Max: 200
   IgnoreCopDirectives: true
   Exclude:
-    - 'simple_segment.gemspec'
+    - 'rudder_analytics_sync.gemspec'
 
 Style/Documentation:
+  Enabled: false
+
+Gemspec/RequiredRubyVersion:
   Enabled: false

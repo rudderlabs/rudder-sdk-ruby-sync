@@ -2,9 +2,19 @@
 
 require 'spec_helper'
 
-describe RudderAnalyticsSync::Operations::Track do
-  context 'timestamps' do
+describe RudderAnalyticsSync::Operations::Track do # rubocop:disable Metrics/BlockLength
+  context 'timestamps' do # rubocop:disable Metrics/BlockLength
     let(:client) { RudderAnalyticsSync::Client.new(write_key: 'key') }
+
+    it 'uses an empty hash if no properties were provided' do
+      payload = described_class.new(
+        client,
+        event: 'event',
+        user_id: 'id'
+      ).build_payload
+
+      expect(payload[:properties]).to eq({})
+    end
 
     it 'works with Time objects' do
       payload = described_class.new(
@@ -40,7 +50,7 @@ describe RudderAnalyticsSync::Operations::Track do
     end
 
     it 'works with stubed calls' do
-      stubed_client = RudderAnalyticsSync::Client.new(write_key: 'key', stub: true)
+      stubed_client = SimpleSegment::Client.new(write_key: 'key', stub: true)
       expect(stubed_client.track(
         event: 'event',
         user_id: 'id',

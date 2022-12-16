@@ -6,7 +6,6 @@ module RudderAnalyticsSync
   class Configuration
     include RudderAnalyticsSync::Utils
     include RudderAnalyticsSync::Logging
-
     attr_reader :write_key, :data_plane_url, :on_error, :stub, :logger, :http_options
 
     def initialize(settings = {})

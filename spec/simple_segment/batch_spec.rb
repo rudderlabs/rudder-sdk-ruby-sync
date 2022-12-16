@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe RudderAnalyticsSync::Batch do
+describe RudderAnalyticsSync::Batch do # rubocop:disable Metrics/BlockLength
   let(:client) { RudderAnalyticsSync::Client.new(write_key: 'key') }
 
   it 'supports identify, group, track and page' do
@@ -10,7 +10,7 @@ describe RudderAnalyticsSync::Batch do
                    .with do |request|
                      batch = JSON.parse(request.body)['batch']
                      batch.map do |operation|
-                       operation['action']
+                       operation['type']
                      end == %w[identify group track page]
                    end
 
@@ -76,7 +76,7 @@ describe RudderAnalyticsSync::Batch do
                    .with do |request|
                      batch = JSON.parse(request.body)['batch']
                      batch.map do |operation|
-                       operation['action']
+                       operation['type']
                      end == %w[identify track]
                    end
 

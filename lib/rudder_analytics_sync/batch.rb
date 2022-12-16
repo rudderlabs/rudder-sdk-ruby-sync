@@ -61,7 +61,7 @@ module RudderAnalyticsSync
 
     private
 
-    def add(operation_class, options, action)
+    def add(operation_class, options, action) # rubocop:disable Metrics/AbcSize
       operation = operation_class.new(client, symbolize_keys(options))
       operation_payload = operation.build_payload
       operation_payload[:context] = operation_payload[:context].merge(payload[:context] || {})

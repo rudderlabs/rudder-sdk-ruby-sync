@@ -2,14 +2,14 @@
 
 require 'spec_helper'
 
-describe RudderAnalyticsSync::Client do
+describe RudderAnalyticsSync::Client do # rubocop:disable Metrics/BlockLength
   subject(:client) do
     described_class.new(write_key: 'WRITE_KEY')
   end
   let(:now) { Time.new(2999, 12, 29) }
 
-  describe '#identify' do
-    it 'sends identity and properties to segment' do
+  describe '#identify' do # rubocop:disable Metrics/BlockLength
+    it 'sends identity and properties to segment' do # rubocop:disable Metrics/BlockLength
       time = Time.utc(2018, 3, 11, 10, 20)
       dt = DateTime.new(2018, 3, 11, 12, 20)
       date = Date.new(2018, 3, 12)
@@ -29,7 +29,8 @@ describe RudderAnalyticsSync::Client do
         integrations: {
           all: true
         },
-        timestamp: Time.new(2016, 3, 23)
+        timestamp: Time.new(2016, 3, 23),
+        message_id: 'message-id'
       }
       expected_request_body = {
         'userId' => 'id',
@@ -52,7 +53,8 @@ describe RudderAnalyticsSync::Client do
           'all' => true
         },
         'timestamp' => Time.new(2016, 3, 23).iso8601,
-        'sentAt' => now.iso8601
+        'sentAt' => now.iso8601,
+        'messageId' => 'message-id'
       }
       request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/identify')
                      .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
@@ -90,8 +92,8 @@ describe RudderAnalyticsSync::Client do
     end
   end
 
-  describe '#track' do
-    it 'sends event and properties to segment' do
+  describe '#track' do # rubocop:disable Metrics/BlockLength
+    it 'sends event and properties to segment' do # rubocop:disable Metrics/BlockLength
       time = Time.utc(2018, 3, 11, 10, 20)
       dt = DateTime.new(2018, 3, 11, 12, 20)
       date = Date.new(2018, 3, 12)
@@ -112,7 +114,8 @@ describe RudderAnalyticsSync::Client do
         integrations: {
           all: true
         },
-        timestamp: Time.new(2016, 3, 23)
+        timestamp: Time.new(2016, 3, 23),
+        message_id: 'message-id'
       }
       expected_request_body = {
         'event' => 'Delivered Package',
@@ -136,7 +139,8 @@ describe RudderAnalyticsSync::Client do
           'all' => true
         },
         'timestamp' => Time.new(2016, 3, 23).iso8601,
-        'sentAt' => now.iso8601
+        'sentAt' => now.iso8601,
+        'messageId' => 'message-id'
       }
       request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/track')
                      .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
@@ -149,7 +153,8 @@ describe RudderAnalyticsSync::Client do
 
     context 'input checks' do
       before(:example) do
-        stub_request(:post, 'https://hosted.rudderlabs.com/v1/track').with(basic_auth: ['WRITE_KEY', ''])
+        stub_request(:post,
+                     'https://hosted.rudderlabs.com/v1/track').with(basic_auth: ['WRITE_KEY', ''])
       end
 
       it 'errors without an event name' do
@@ -168,8 +173,8 @@ describe RudderAnalyticsSync::Client do
     end
   end
 
-  describe '#page' do
-    it 'sends page info to segment' do
+  describe '#page' do # rubocop:disable Metrics/BlockLength
+    it 'sends page info to segment' do # rubocop:disable Metrics/BlockLength
       time = Time.utc(2018, 3, 11, 10, 20)
       dt = DateTime.new(2018, 3, 11, 12, 20)
       date = Date.new(2018, 3, 12)
@@ -189,7 +194,8 @@ describe RudderAnalyticsSync::Client do
         integrations: {
           all: true
         },
-        timestamp: Time.new(2016, 3, 23)
+        timestamp: Time.new(2016, 3, 23),
+        message_id: 'message-id'
       }
       expected_request_body = {
         'userId' => 'id',
@@ -212,7 +218,8 @@ describe RudderAnalyticsSync::Client do
           'all' => true
         },
         'timestamp' => Time.new(2016, 3, 23).iso8601,
-        'sentAt' => now.iso8601
+        'sentAt' => now.iso8601,
+        'messageId' => 'message-id'
       }
       request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/page')
                      .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
@@ -225,7 +232,8 @@ describe RudderAnalyticsSync::Client do
 
     context 'input checks' do
       before(:example) do
-        stub_request(:post, 'https://hosted.rudderlabs.com/v1/page').with(basic_auth: ['WRITE_KEY', ''])
+        stub_request(:post,
+                     'https://hosted.rudderlabs.com/v1/page').with(basic_auth: ['WRITE_KEY', ''])
       end
 
       it 'errors with user_id and anonymous_id blank' do
@@ -240,8 +248,8 @@ describe RudderAnalyticsSync::Client do
     end
   end
 
-  describe '#group' do
-    it 'sends group info to segment' do
+  describe '#group' do # rubocop:disable Metrics/BlockLength
+    it 'sends group info to segment' do # rubocop:disable Metrics/BlockLength
       time = Time.utc(2018, 3, 11, 10, 20)
       dt = DateTime.new(2018, 3, 11, 12, 20)
       date = Date.new(2018, 3, 12)
@@ -261,7 +269,8 @@ describe RudderAnalyticsSync::Client do
         integrations: {
           all: true
         },
-        timestamp: Time.new(2016, 3, 23)
+        timestamp: Time.new(2016, 3, 23),
+        message_id: 'message-id'
       }
       expected_request_body = {
         'userId' => 'id',
@@ -284,7 +293,8 @@ describe RudderAnalyticsSync::Client do
           'all' => true
         },
         'timestamp' => Time.new(2016, 3, 23).iso8601,
-        'sentAt' => now.iso8601
+        'sentAt' => now.iso8601,
+        'messageId' => 'message-id'
       }
       request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/group')
                      .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
@@ -297,7 +307,8 @@ describe RudderAnalyticsSync::Client do
 
     context 'input checks' do
       before(:example) do
-        stub_request(:post, 'https://hosted.rudderlabs.com/v1/group').with(basic_auth: ['WRITE_KEY', ''])
+        stub_request(:post,
+                     'https://hosted.rudderlabs.com/v1/group').with(basic_auth: ['WRITE_KEY', ''])
       end
 
       it 'errors without a group id' do
@@ -316,8 +327,8 @@ describe RudderAnalyticsSync::Client do
     end
   end
 
-  describe '#alias' do
-    it 'sends alias info to segment' do
+  describe '#alias' do # rubocop:disable Metrics/BlockLength
+    it 'sends alias info to segment' do # rubocop:disable Metrics/BlockLength
       options = {
         user_id: 'id',
         previous_id: 'previous_id',
@@ -327,7 +338,8 @@ describe RudderAnalyticsSync::Client do
         integrations: {
           all: true
         },
-        timestamp: Time.new(2016, 3, 23)
+        timestamp: Time.new(2016, 3, 23),
+        message_id: 'message-id'
       }
       expected_request_body = {
         'userId' => 'id',
@@ -344,7 +356,8 @@ describe RudderAnalyticsSync::Client do
           'all' => true
         },
         'timestamp' => Time.new(2016, 3, 23).iso8601,
-        'sentAt' => now.iso8601
+        'sentAt' => now.iso8601,
+        'messageId' => 'message-id'
       }
       request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/alias')
                      .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
@@ -357,7 +370,8 @@ describe RudderAnalyticsSync::Client do
 
     context 'input checks' do
       before(:example) do
-        stub_request(:post, 'https://hosted.rudderlabs.com/v1/alias').with(basic_auth: ['WRITE_KEY', ''])
+        stub_request(:post,
+                     'https://hosted.rudderlabs.com/v1/alias').with(basic_auth: ['WRITE_KEY', ''])
       end
 
       it 'errors without a previous id' do
