@@ -47,9 +47,9 @@ describe RudderAnalyticsSync::Request do
                      .with(basic_auth: ['key', ''])
                      .to_return(status: 200)
 
-      client = SimpleSegment::Client.new(
+      client = RudderAnalyticsSync::Client.new(
         write_key: 'key',
-        host: 'events.eu1.segmentapis.com'
+        data_plane_url: 'https://rudderstacz.dataplane.rudderstack.com',
       )
       described_class.new(client).post('/v1/track', {})
 

@@ -18,7 +18,6 @@ module RudderAnalyticsSync
       @logger = default_logger(symbolized_settings[:logger])
       @http_options = { use_ssl: true }
                       .merge(symbolized_settings[:http_options] || {})
-      @host = symbolized_settings[:host] || DEFAULT_HOST
       raise ArgumentError, 'Missing required option :write_key' \
         unless @write_key
     end

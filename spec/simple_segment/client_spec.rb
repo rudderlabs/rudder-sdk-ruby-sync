@@ -45,7 +45,7 @@ describe RudderAnalyticsSync::Client do
         'context' => {
           'employer' => 'Planet Express',
           'library' => {
-            'name' => 'simple_segment',
+            'name' => 'rudder-sdk-ruby-sync',
             'version' => RudderAnalyticsSync::VERSION
           }
         },
@@ -131,7 +131,7 @@ describe RudderAnalyticsSync::Client do
         'context' => {
           'crew' => %w[Bender Fry Leela],
           'library' => {
-            'name' => 'simple_segment',
+            'name' => 'rudder-sdk-ruby-sync',
             'version' => RudderAnalyticsSync::VERSION
           }
         },
@@ -209,7 +209,7 @@ describe RudderAnalyticsSync::Client do
         'context' => {
           'company' => 'Planet Express',
           'library' => {
-            'name' => 'simple_segment',
+            'name' => 'rudder-sdk-ruby-sync',
             'version' => RudderAnalyticsSync::VERSION
           }
         },
@@ -283,7 +283,7 @@ describe RudderAnalyticsSync::Client do
         'context' => {
           'locale' => 'AL1',
           'library' => {
-            'name' => 'simple_segment',
+            'name' => 'rudder-sdk-ruby-sync',
             'version' => RudderAnalyticsSync::VERSION
           }
         },
@@ -345,7 +345,7 @@ describe RudderAnalyticsSync::Client do
         'context' => {
           'locale' => 'AL1',
           'library' => {
-            'name' => 'simple_segment',
+            'name' => 'rudder-sdk-ruby-sync',
             'version' => RudderAnalyticsSync::VERSION
           }
         },

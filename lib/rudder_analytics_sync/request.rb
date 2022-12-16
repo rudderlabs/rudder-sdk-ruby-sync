@@ -17,10 +17,9 @@ module RudderAnalyticsSync
       @stub = client.config.stub
       @logger = client.config.logger
       @http_options = client.config.http_options
-      @host = client.config.host
     end
 
-    def post(path, payload, headers: DEFAULT_HEADERS) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    def post(path, payload, headers: DEFAULT_HEADERS) # rubocop:disable Metrics/AbcSize
       response = nil
       status_code = nil
       response_body = nil
