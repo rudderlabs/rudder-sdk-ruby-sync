@@ -1,9 +1,20 @@
+require: rubocop-rspec
+
 AllCops:
   NewCops: enable
+  Exclude:
+    - 'spec/**/*'
+    - 'example/**/*'
 
 Metrics/BlockLength:
   Exclude:
-    - 'spec/**/*_spec.rb'
+    - 'spec/**/*'
+    - 'example/**/*'
+
+Style/OptionalBooleanParameter:
+  Exclude:
+    - 'spec/**/*'
+    - 'example/**/*'
 
 Style/FormatStringToken:
   Enabled: false
@@ -18,4 +29,10 @@ Style/Documentation:
   Enabled: false
 
 Gemspec/RequiredRubyVersion:
+  Enabled: false
+
+Metrics/MethodLength:
+  Max: 200
+
+Style/IfUnlessModifier:
   Enabled: false

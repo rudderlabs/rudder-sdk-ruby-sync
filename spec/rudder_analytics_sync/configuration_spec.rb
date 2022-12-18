@@ -29,11 +29,6 @@ describe RudderAnalyticsSync::Configuration do
       config = described_class.new(write_key: 'test')
       expect(config.http_options).to eq(use_ssl: true)
     end
-
-    it 'has a default host' do
-      config = described_class.new(write_key: 'test')
-      expect(config.host).to eq('api.segment.io')
-    end
   end
 
   it 'works with stub' do
@@ -55,8 +50,8 @@ describe RudderAnalyticsSync::Configuration do
     expect(config.http_options).to eq(use_ssl: true, read_timeout: 42)
   end
 
-  it 'accepts a host' do
-    config = described_class.new(write_key: 'test', host: 'events.eu1.segmentapis.com')
-    expect(config.host).to eq('events.eu1.segmentapis.com')
+  it 'accepts a data_plane_url' do
+    config = described_class.new(write_key: 'test', data_plane_url: 'hosted.rudderlabs.com')
+    expect(config.data_plane_url).to eq('hosted.rudderlabs.com')
   end
 end

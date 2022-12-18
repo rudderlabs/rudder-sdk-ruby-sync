@@ -1,26 +1,25 @@
 # frozen_string_literal: true
 
 require 'rudder_analytics_sync/utils'
+require 'rudder_analytics_sync/constants'
 
 module RudderAnalyticsSync
   module Operations
     class Operation
       include RudderAnalyticsSync::Utils
-
-      DEFAULT_CONTEXT = {
-        library: {
-          name: 'rudder-sdk-ruby-sync',
-          version: RudderAnalyticsSync::VERSION
-        },
-        traits: {
-
-        }
-      }.freeze
+      include RudderAnalyticsSync::Constants
 
       def initialize(client, options = {})
         @options = options
-        @context = DEFAULT_CONTEXT.merge(options[:context].to_h)
+        @context = make_context(options[:context])
         @request = Request.new(client)
+      end
+
+      def make_context(option_context)
+        if option_context # rubocop:disable Style/SafeNavigation
+          option_context.delete(:library)
+        end
+        DEFAULT_CONTEXT.merge(option_context.to_h)
       end
 
       def call
@@ -31,7 +30,7 @@ module RudderAnalyticsSync
 
       attr_reader :options, :request, :context
 
-      def base_payload
+      def base_payload # rubocop:disable Metrics/AbcSize
         check_identity!
         current_time = Time.now.utc
 
@@ -40,18 +39,23 @@ module RudderAnalyticsSync
           integrations: options[:integrations] || { All: true },
           timestamp: maybe_datetime_in_iso8601(options[:timestamp] || Time.now.utc),
           sentAt: maybe_datetime_in_iso8601(current_time),
-          messageId: uid(),
-          properties: options[:properties] || {}
+          messageId: options[:message_id] || uid,
+          channel: 'server'
         }
 
+        # add the properties if present
+        if options[:properties]
+          payload = payload.merge({ properties: options[:properties] })
+        end
+
         # add the userId if present
-        if (options[:user_id])
-            payload = payload.merge({userId: options[:user_id]})
+        if options[:user_id]
+          payload = payload.merge({ userId: options[:user_id] })
         end
 
         # add the anonymousId if present
-        if (options[:anonymous_id])
-            payload = payload.merge({anonymousId: options[:anonymous_id]})
+        if options[:anonymous_id]
+          payload = payload.merge({ anonymousId: options[:anonymous_id] })
         end
         payload
       end
