@@ -56,6 +56,19 @@ module RudderAnalyticsSync
     # @param [Hash] options
     # @option :user_id
     # @option :anonymous_id
+    # @option :name [String]
+    # @option :properties [Hash]
+    # @option :context [Hash]
+    # @option :integrations [Hash]
+    # @option :timestamp [#iso8601] (Time.now)
+    # @option :message_id
+    def screen(options)
+      Operations::Screen.new(self, symbolize_keys(options)).call
+    end
+
+    # @param [Hash] options
+    # @option :user_id
+    # @option :anonymous_id
     # @option :group_id required
     # @option :traits [Hash]
     # @option :context [Hash]

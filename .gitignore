@@ -8,3 +8,5 @@
 /tmp/
 Gemfile.lock
 *.DS_Store
+local_config.yaml
+.vscode/

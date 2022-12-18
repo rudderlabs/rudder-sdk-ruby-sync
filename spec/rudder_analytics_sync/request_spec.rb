@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-describe RudderAnalyticsSync::Request do
-  context 'API errors handling' do
+describe RudderAnalyticsSync::Request do # rubocop:disable Metrics/BlockLength
+  context 'API errors handling' do # rubocop:disable Metrics/BlockLength
     before(:example) do
       stub_request(:post, 'https://hosted.rudderlabs.com/v1/track')
         .with(basic_auth: ['key', ''])
@@ -38,22 +38,6 @@ describe RudderAnalyticsSync::Request do
       expect(error_body).to eq({ error: 'Does not compute' }.to_json)
       expect(response).to be_a(Net::HTTPFatalError)
       expect(exception).to be_a(Net::HTTPInternalServerError)
-    end
-  end
-
-  context 'with custom host' do
-    it 'uses configured host' do
-      request_stub = stub_request(:post, 'https://events.eu1.segmentapis.com/v1/track')
-                     .with(basic_auth: ['key', ''])
-                     .to_return(status: 200)
-
-      client = SimpleSegment::Client.new(
-        write_key: 'key',
-        host: 'events.eu1.segmentapis.com'
-      )
-      described_class.new(client).post('/v1/track', {})
-
-      expect(request_stub).to have_been_requested.once
     end
   end
 end

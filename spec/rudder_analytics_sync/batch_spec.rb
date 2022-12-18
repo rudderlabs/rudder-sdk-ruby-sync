@@ -19,6 +19,7 @@ describe RudderAnalyticsSync::Batch do # rubocop:disable Metrics/BlockLength
     batch.group(user_id: 'id', group_id: 'group_id')
     batch.track(event: 'Delivered Package', user_id: 'id')
     batch.page(
+      name: 'Test Page',
       user_id: 'id',
       properties: { url: 'https://en.wikipedia.org/wiki/Zoidberg' }
     )
@@ -28,15 +29,22 @@ describe RudderAnalyticsSync::Batch do # rubocop:disable Metrics/BlockLength
   end
 
   it 'allows to set common context' do
-    expected_context = { 'foo' => 'bar' }
+    expected_context = {
+      'foo' => 'bar',
+      'library' => {
+        'name' => 'rudder-sdk-ruby-sync', 'version' => '2.0.0'
+      }
+    }
     request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/batch')
                    .with do |request|
-                     context = JSON.parse(request.body)['context']
-                     context == expected_context
+                     batch = JSON.parse(request.body)['batch']
+                     batch.map do |operation|
+                       operation['context']
+                     end == [expected_context]
                    end
 
     batch = described_class.new(client)
-    batch.context = expected_context
+    batch.context = { 'foo' => 'bar' }
     batch.track(event: 'Delivered Package', user_id: 'id')
     batch.commit
 
@@ -47,8 +55,10 @@ describe RudderAnalyticsSync::Batch do # rubocop:disable Metrics/BlockLength
     expected_integrations = { 'foo' => 'bar' }
     request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/batch')
                    .with do |request|
-                     integrations = JSON.parse(request.body)['integrations']
-                     integrations == expected_integrations
+                     batch = JSON.parse(request.body)['batch']
+                     batch.map do |operation|
+                       operation['integrations']
+                     end == [expected_integrations]
                    end
 
     batch = described_class.new(client)

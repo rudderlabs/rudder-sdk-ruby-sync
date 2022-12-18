@@ -50,7 +50,7 @@ module RudderAnalyticsSync
     end
 
     def time_in_iso8601(time, fraction_digits = 3)
-      fraction = (('.%06i' % time.usec)[0, fraction_digits + 1] if fraction_digits > 0)
+      fraction = (format('.%06i', time.usec)[0, fraction_digits + 1] if fraction_digits.positive?)
 
       "#{time.strftime('%Y-%m-%dT%H:%M:%S')}#{fraction}#{formatted_offset(time, true, 'Z')}"
     end
@@ -59,13 +59,18 @@ module RudderAnalyticsSync
       date.strftime('%F')
     end
 
-    def formatted_offset(time, colon: true, alternate_utc_string: nil)
+    def formatted_offset(time, colon = true, alternate_utc_string = nil) # rubocop:disable Style/OptionalBooleanParameter
       (time.utc? && alternate_utc_string) || seconds_to_utc_offset(time.utc_offset, colon)
     end
 
-    def seconds_to_utc_offset(seconds, colon: true)
-      format((colon ? UTC_OFFSET_WITH_COLON : UTC_OFFSET_WITHOUT_COLON), (seconds.negative ? '-' : '+'),
-             (seconds.abs / 3600), ((seconds.abs % 3600) / 60))
+    def seconds_to_utc_offset(seconds, colon = true) # rubocop:disable Style/OptionalBooleanParameter
+      format((colon ? UTC_OFFSET_WITH_COLON : UTC_OFFSET_WITHOUT_COLON), (seconds.negative? ? '-' : '+'), (seconds.abs / 3600), ((seconds.abs % 3600) / 60))
+    end
+
+    def valid_date?(string)
+      !!(string.match(/\d{4}-\d{2}-\d{2}/) && Date.strptime(string, '%Y-%m-%d'))
+    rescue ArgumentError
+      false
     end
 
     UTC_OFFSET_WITH_COLON = '%s%02d:%02d'

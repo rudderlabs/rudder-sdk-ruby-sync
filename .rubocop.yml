@@ -4,6 +4,7 @@ AllCops:
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*_spec.rb'
+    - 'example/**/*.rb'
 
 Style/FormatStringToken:
   Enabled: false
@@ -18,4 +19,10 @@ Style/Documentation:
   Enabled: false
 
 Gemspec/RequiredRubyVersion:
+  Enabled: false
+
+Metrics/MethodLength:
+  Max: 200
+
+Style/IfUnlessModifier:
   Enabled: false

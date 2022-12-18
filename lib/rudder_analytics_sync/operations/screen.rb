@@ -4,7 +4,14 @@ module RudderAnalyticsSync
   module Operations
     class Screen < Operation
       def call
-        request.post('/v1/screen', build_payload)
+        batch = build_payload.merge(
+          type: 'screen'
+        )
+        if batch.length > MAX_BATCH_SIZE
+          raise ArgumentError, 'Max batch size is 500 KB'
+        end
+
+        request.post('/v1/batch', batch: [batch])
       end
 
       def build_payload
@@ -13,7 +20,7 @@ module RudderAnalyticsSync
         base_payload.merge(
           name: options[:name],
           event: options[:name],
-          properties: properties.merge({name: options[:name]})
+          properties: properties.merge({ name: options[:name] })
         )
       end
     end
