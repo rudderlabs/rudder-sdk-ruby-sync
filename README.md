@@ -53,7 +53,7 @@ analytics = RudderAnalyticsSync::Client.new(
   write_key: 'WRITE_KEY', # Required
   data_plane_url: 'DATA_PLANE_URL',
   stub: false,
-  gzip: false,  # set to true to enable Gzip compression
+  gzip: true,  # set to false to disable Gzip compression
   on_error: proc { |error_code, error_body, exception, response|
     # defaults to an empty proc
   }
@@ -100,7 +100,7 @@ analytics = RudderAnalyticsSync::Client.new(
   write_key: 'WRITE_KEY', # required
   data_plane_url: 'DATA_PLANE_URL',
   stub: false,
-  gzip: false, // set to true to enable Gzip compression
+  gzip: true, // set to false to disable Gzip compression
   on_error: proc { |error_code, error_body, exception, response|
     # defaults to an empty proc
   }
