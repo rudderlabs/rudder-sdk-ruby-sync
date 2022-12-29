@@ -53,7 +53,7 @@ analytics = RudderAnalyticsSync::Client.new(
   write_key: 'WRITE_KEY', # Required
   data_plane_url: 'DATA_PLANE_URL',
   stub: false,
-  gzip: true,  # set to false to disable Gzip compression
+  gzip: true,  # Set to false to disable Gzip compression
   on_error: proc { |error_code, error_body, exception, response|
     # defaults to an empty proc
   }
@@ -68,6 +68,25 @@ analytics.track(
   event: 'Test Event'
 )
 ```
+
+## Gzip support
+
+From version 2.0.0, the Ruby SDK supports Gzip compression and it is enabled (set to `true`) by default. However, you can disable this feature by setting the `Gzip` parameter to `false` while initializing the SDK, as shown:
+
+```ruby
+analytics = RudderAnalyticsSync::Client.new(
+  write_key: 'WRITE_KEY', # required
+  data_plane_url: 'DATA_PLANE_URL',
+  stub: false,
+  gzip: false, // Set to true to enable Gzip compression
+  on_error: proc { |error_code, error_body, exception, response|
+    # defaults to an empty proc
+  }
+)
+```
+
+| Note: Gzip requires `rudder-server` version 1.4 or later. |
+| :-----|
 
 ## Sending events
 
@@ -90,25 +109,6 @@ analytics.batch do |batch|
   ...
 end
 ```
-
-## Gzip support
-
-The Ruby SDK supports Gzip compression from version 2.0.0 and it is enabled (set to `true`) by default. However, you can disable this feature by setting the `Gzip` parameter to `false` while initializing the SDK, as shown:
-
-```ruby
-analytics = RudderAnalyticsSync::Client.new(
-  write_key: 'WRITE_KEY', # required
-  data_plane_url: 'DATA_PLANE_URL',
-  stub: false,
-  gzip: true, // set to false to disable Gzip compression
-  on_error: proc { |error_code, error_body, exception, response|
-    # defaults to an empty proc
-  }
-)
-```
-
-| Note: Gzip requires `rudder-server` version 1.4 or later. |
-| :-----|
 
 ## License
 
