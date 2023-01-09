@@ -4,7 +4,14 @@ module RudderAnalyticsSync
   module Operations
     class Group < Operation
       def call
-        request.post('/v1/group', build_payload)
+        batch = build_payload.merge(
+          type: 'group'
+        )
+        if batch.inspect.length > MAX_MESSAGE_SIZE
+          raise ArgumentError, 'Max message size is 32 KB'
+        end
+
+        request.post('/v1/batch', batch: [batch])
       end
 
       def build_payload

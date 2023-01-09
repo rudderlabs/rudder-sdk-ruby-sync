@@ -49,4 +49,9 @@ describe RudderAnalyticsSync::Configuration do
     config = described_class.new(write_key: 'test', http_options: { read_timeout: 42 })
     expect(config.http_options).to eq(use_ssl: true, read_timeout: 42)
   end
+
+  it 'accepts a data_plane_url' do
+    config = described_class.new(write_key: 'test', data_plane_url: 'hosted.rudderlabs.com')
+    expect(config.data_plane_url).to eq('hosted.rudderlabs.com')
+  end
 end

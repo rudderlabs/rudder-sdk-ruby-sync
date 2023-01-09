@@ -6,8 +6,7 @@ module RudderAnalyticsSync
   class Configuration
     include RudderAnalyticsSync::Utils
     include RudderAnalyticsSync::Logging
-
-    attr_reader :write_key, :data_plane_url, :on_error, :stub, :logger, :http_options
+    attr_reader :write_key, :data_plane_url, :on_error, :stub, :logger, :http_options, :gzip
 
     def initialize(settings = {})
       symbolized_settings = symbolize_keys(settings)
@@ -18,6 +17,7 @@ module RudderAnalyticsSync
       @logger = default_logger(symbolized_settings[:logger])
       @http_options = { use_ssl: true }
                       .merge(symbolized_settings[:http_options] || {})
+      @gzip = symbolized_settings[:gzip]
       raise ArgumentError, 'Missing required option :write_key' \
         unless @write_key
     end
