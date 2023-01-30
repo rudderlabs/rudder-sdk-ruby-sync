@@ -11,7 +11,7 @@ module RudderAnalyticsSync
           raise ArgumentError, 'Max message size is 32 KB'
         end
 
-        request.post('/v1/batch', batch: [batch])
+        request.post('/v1/batch', { 'batch' => [batch] })
       end
 
       def build_payload

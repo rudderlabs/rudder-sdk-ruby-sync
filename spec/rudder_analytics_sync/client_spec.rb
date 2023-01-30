@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'json'
 
 describe RudderAnalyticsSync::Client do
   subject(:client) do
@@ -34,40 +35,40 @@ describe RudderAnalyticsSync::Client do
       }
       expected_request_body = {
         'batch' => [{
-          'context' => {
-            'employer' => 'Planet Express',
-            'library' => {
-              'name' => 'rudder-sdk-ruby-sync',
-              'version' => RudderAnalyticsSync::VERSION
-            },
-            'traits' => {
-              'name' => 'Philip J. Fry',
-              'occupation' => 'Delivery Boy',
-              'foo_time' => '2018-03-11T10:20:00.000Z',
-              'foo_date_time' => dt.to_time.iso8601(3),
-              'foo_date' => '2018-03-12'
-            }
-          },
-          'integrations' => {
-            'all' => true
-          },
-          'timestamp' => Time.new(2016, 3, 23).iso8601,
-          'sentAt' => maybe_datetime_in_iso8601(now),
-          'channel' => 'server',
-          'userId' => 'id',
-          'type' => 'identify',
-          'traits' => {
-            'name' => 'Philip J. Fry',
-            'occupation' => 'Delivery Boy',
-            'foo_time' => '2018-03-11T10:20:00.000Z',
-            'foo_date_time' => dt.to_time.iso8601(3),
-            'foo_date' => '2018-03-12'
-          },
-          'messageId' => 'message-id'
-        }]
+                      'context' => {
+                        'employer' => 'Planet Express',
+                        'library' => {
+                          'name' => 'rudder-sdk-ruby-sync',
+                          'version' => RudderAnalyticsSync::VERSION
+                        },
+                        'traits' => {
+                          'name' => 'Philip J. Fry',
+                          'occupation' => 'Delivery Boy',
+                          'foo_time' => '2018-03-11T10:20:00.000Z',
+                          'foo_date_time' => dt.to_time.iso8601(3),
+                          'foo_date' => '2018-03-12'
+                        }
+                      },
+                      'integrations' => {
+                        'all' => true
+                      },
+                      'timestamp' => Time.new(2016, 3, 23).iso8601,
+                      'sentAt' => maybe_datetime_in_iso8601(now),
+                      'channel' => 'server',
+                      'userId' => 'id',
+                      'type' => 'identify',
+                      'traits' => {
+                        'name' => 'Philip J. Fry',
+                        'occupation' => 'Delivery Boy',
+                        'foo_time' => '2018-03-11T10:20:00.000Z',
+                        'foo_date_time' => dt.to_time.iso8601(3),
+                        'foo_date' => '2018-03-12'
+                      },
+                      'messageId' => 'message-id'
+                    }]
       }
       request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/batch')
-                     .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
+                       .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
 
       Timecop.freeze(now) do
         client.identify(options)
@@ -129,34 +130,34 @@ describe RudderAnalyticsSync::Client do
       }
       expected_request_body = {
         'batch' => [{
-          'context' => {
-            'crew' => %w[Bender Fry Leela],
-            'library' => {
-              'name' => 'rudder-sdk-ruby-sync',
-              'version' => RudderAnalyticsSync::VERSION
-            }
-          },
-          'integrations' => {
-            'all' => true
-          },
-          'timestamp' => Time.new(2016, 3, 23).iso8601,
-          'sentAt' => maybe_datetime_in_iso8601(now),
-          'channel' => 'server',
-          'properties' => {
-            'contents' => 'Lug nuts',
-            'delivery_to' => 'Robots of Chapek 9',
-            'foo_time' => '2018-03-11T10:20:00.000Z',
-            'foo_date_time' => dt.to_time.iso8601(3),
-            'foo_date' => '2018-03-12'
-          },
-          'event' => 'Delivered Package',
-          'userId' => 'id',
-          'type' => 'track',
-          'messageId' => 'message-id'
-        }]
+                      'context' => {
+                        'crew' => %w[Bender Fry Leela],
+                        'library' => {
+                          'name' => 'rudder-sdk-ruby-sync',
+                          'version' => RudderAnalyticsSync::VERSION
+                        }
+                      },
+                      'integrations' => {
+                        'all' => true
+                      },
+                      'timestamp' => Time.new(2016, 3, 23).iso8601,
+                      'sentAt' => maybe_datetime_in_iso8601(now),
+                      'channel' => 'server',
+                      'properties' => {
+                        'contents' => 'Lug nuts',
+                        'delivery_to' => 'Robots of Chapek 9',
+                        'foo_time' => '2018-03-11T10:20:00.000Z',
+                        'foo_date_time' => dt.to_time.iso8601(3),
+                        'foo_date' => '2018-03-12'
+                      },
+                      'event' => 'Delivered Package',
+                      'userId' => 'id',
+                      'type' => 'track',
+                      'messageId' => 'message-id'
+                    }]
       }
       request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/batch')
-                     .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
+                       .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
 
       Timecop.freeze(now) do
         client.track(options)
@@ -211,35 +212,35 @@ describe RudderAnalyticsSync::Client do
       }
       expected_request_body = {
         'batch' => [{
-          'context' => {
-            'company' => 'Planet Express',
-            'library' => {
-              'name' => 'rudder-sdk-ruby-sync',
-              'version' => RudderAnalyticsSync::VERSION
-            }
-          },
-          'integrations' => {
-            'all' => true
-          },
-          'timestamp' => Time.new(2016, 3, 23).iso8601,
-          'sentAt' => maybe_datetime_in_iso8601(now),
-          'channel' => 'server',
-          'properties' => {
-            'url' => 'https://en.wikipedia.org/wiki/Zoidberg',
-            'foo_time' => '2018-03-11T10:20:00.000Z',
-            'foo_date_time' => dt.to_time.iso8601(3),
-            'foo_date' => '2018-03-12',
-            'name' => 'Zoidberg'
-          },
-          'userId' => 'id',
-          'name' => 'Zoidberg',
-          'event' => 'Zoidberg',
-          'type' => 'page',
-          'messageId' => 'message-id'
-        }]
+                      'context' => {
+                        'company' => 'Planet Express',
+                        'library' => {
+                          'name' => 'rudder-sdk-ruby-sync',
+                          'version' => RudderAnalyticsSync::VERSION
+                        }
+                      },
+                      'integrations' => {
+                        'all' => true
+                      },
+                      'timestamp' => Time.new(2016, 3, 23).iso8601,
+                      'sentAt' => maybe_datetime_in_iso8601(now),
+                      'channel' => 'server',
+                      'properties' => {
+                        'url' => 'https://en.wikipedia.org/wiki/Zoidberg',
+                        'foo_time' => '2018-03-11T10:20:00.000Z',
+                        'foo_date_time' => dt.to_time.iso8601(3),
+                        'foo_date' => '2018-03-12',
+                        'name' => 'Zoidberg'
+                      },
+                      'userId' => 'id',
+                      'name' => 'Zoidberg',
+                      'event' => 'Zoidberg',
+                      'type' => 'page',
+                      'messageId' => 'message-id'
+                    }]
       }
       request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/batch')
-                     .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
+                       .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
 
       Timecop.freeze(now) do
         client.page(options)
@@ -290,33 +291,33 @@ describe RudderAnalyticsSync::Client do
       }
       expected_request_body = {
         'batch' => [{
-          'context' => {
-            'locale' => 'AL1',
-            'library' => {
-              'name' => 'rudder-sdk-ruby-sync',
-              'version' => RudderAnalyticsSync::VERSION
-            }
-          },
-          'integrations' => {
-            'all' => true
-          },
-          'timestamp' => Time.new(2016, 3, 23).iso8601,
-          'sentAt' => maybe_datetime_in_iso8601(now),
-          'channel' => 'server',
-          'userId' => 'id',
-          'traits' => {
-            'name' => 'Planet Express',
-            'foo_time' => '2018-03-11T10:20:00.000Z',
-            'foo_date_time' => dt.to_time.iso8601(3),
-            'foo_date' => '2018-03-12'
-          },
-          'groupId' => 'group_id',
-          'type' => 'group',
-          'messageId' => 'message-id'
-        }]
+                      'context' => {
+                        'locale' => 'AL1',
+                        'library' => {
+                          'name' => 'rudder-sdk-ruby-sync',
+                          'version' => RudderAnalyticsSync::VERSION
+                        }
+                      },
+                      'integrations' => {
+                        'all' => true
+                      },
+                      'timestamp' => Time.new(2016, 3, 23).iso8601,
+                      'sentAt' => maybe_datetime_in_iso8601(now),
+                      'channel' => 'server',
+                      'userId' => 'id',
+                      'traits' => {
+                        'name' => 'Planet Express',
+                        'foo_time' => '2018-03-11T10:20:00.000Z',
+                        'foo_date_time' => dt.to_time.iso8601(3),
+                        'foo_date' => '2018-03-12'
+                      },
+                      'groupId' => 'group_id',
+                      'type' => 'group',
+                      'messageId' => 'message-id'
+                    }]
       }
       request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/batch')
-                     .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
+                       .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
 
       Timecop.freeze(now) do
         client.group(options)
@@ -361,27 +362,27 @@ describe RudderAnalyticsSync::Client do
       }
       expected_request_body = {
         'batch' => [{
-          'context' => {
-            'locale' => 'AL1',
-            'library' => {
-              'name' => 'rudder-sdk-ruby-sync',
-              'version' => RudderAnalyticsSync::VERSION
-            }
-          },
-          'integrations' => {
-            'all' => true
-          },
-          'timestamp' => Time.new(2016, 3, 23).iso8601,
-          'sentAt' => maybe_datetime_in_iso8601(now),
-          'channel' => 'server',
-          'userId' => 'id',
-          'previousId' => 'previous_id',
-          'type' => 'alias',
-          'messageId' => 'message-id'
-        }]
+                      'context' => {
+                        'locale' => 'AL1',
+                        'library' => {
+                          'name' => 'rudder-sdk-ruby-sync',
+                          'version' => RudderAnalyticsSync::VERSION
+                        }
+                      },
+                      'integrations' => {
+                        'all' => true
+                      },
+                      'timestamp' => Time.new(2016, 3, 23).iso8601,
+                      'sentAt' => maybe_datetime_in_iso8601(now),
+                      'channel' => 'server',
+                      'userId' => 'id',
+                      'previousId' => 'previous_id',
+                      'type' => 'alias',
+                      'messageId' => 'message-id'
+                    }]
       }
       request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/batch')
-                     .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
+                       .with(body: expected_request_body, basic_auth: ['WRITE_KEY', ''])
 
       Timecop.freeze(now) do
         client.alias(options)
@@ -419,9 +420,9 @@ describe RudderAnalyticsSync::Client do
   describe '#batch' do
     it 'batches events into a single request' do
       request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/batch')
-                     .with do |request|
-                       JSON.parse(request.body)['batch'].length == 2
-                     end
+                       .with do |request|
+        JSON.parse(request.body)['batch'].length == 2
+      end
       client.batch do |analytics|
         analytics.identify(user_id: 'id')
         analytics.track(event: 'Delivered Package', user_id: 'id')
