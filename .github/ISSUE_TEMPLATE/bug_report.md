@@ -28,8 +28,11 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Version of the _Ruby_ SDK**
-Please mention the version of the Rudder Ruby SDK you are using (e.g., Ruby SDK v1.0.0).
+**Version of the _Ruby_**
+Please mention the version of the Ruby version you are using (e.g., Ruby v3.2.1).
+
+**Version of the _Rudder Ruby_ SDK**
+Please mention the version of the Rudder Ruby SDK you are using (e.g., Rudder Ruby SDK v1.0.0).
 
 **SDK initialisation snippet**
 Share the code snippet used for initializing the Ruby SDK.
