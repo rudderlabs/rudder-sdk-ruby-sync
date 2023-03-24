@@ -10,7 +10,7 @@
   <b>
     <a href="https://rudderstack.com">Website</a>
     ·
-    <a href="https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-ruby-sdk/">Documentation</a>
+    <a href="https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-ruby-sdk-sync/">Documentation</a>
     ·
     <a href="https://rudderstack.com/join-rudderstack-slack-community">Community Slack</a>
   </b>
@@ -28,7 +28,7 @@ The RudderStack Ruby SDK lets you send customer event data from your Ruby applic
 
 - Set up a [RudderStack open source](https://app.rudderstack.com/signup?type=opensource) account.
 - Set up a Ruby source in the dashboard.
-- Copy the write key and the data plane URL. For more information, refer to the [Ruby SDK documentation](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-ruby-sdk/#sdk-setup-requirements).
+- Copy the write key and the data plane URL. For more information, refer to the [Ruby SDK documentation](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-ruby-sdk-sync/#sdk-setup-requirements).
 
 ## Installation
 
@@ -90,7 +90,7 @@ analytics = RudderAnalyticsSync::Client.new(
 
 ## Sending events
 
-Refer to the [RudderStack Ruby SDK documentation](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-ruby-sdk/) for more information on the supported event types.
+Refer to the [RudderStack Ruby SDK documentation](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-ruby-sdk-sync/) for more information on the supported event types.
 
 | From version 2.0.0, the Ruby SDK supports [`screen`](https://www.rudderstack.com/docs/event-spec/standard-events/screen/) events. |
 | :-----|
