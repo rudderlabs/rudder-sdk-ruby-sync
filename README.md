@@ -18,6 +18,8 @@
 
 <p align="center"><a href="https://rubygems.org/gems/rudder_analytics_sync/"><img src="https://img.shields.io/gem/v/rudder_analytics_sync?style=flat"/></a></p>
 
+<p align="center"><a href="https://deepwiki.com/rudderlabs/rudder-sdk-ruby-sync"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"/></a></p>
+
 ----
 
 # RudderStack Ruby SDK
