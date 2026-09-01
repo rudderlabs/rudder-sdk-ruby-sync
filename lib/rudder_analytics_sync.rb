@@ -4,6 +4,7 @@ require 'net/http'
 require 'json'
 require 'time'
 require 'rudder_analytics_sync/version'
+require 'rudder_analytics_sync/retry'
 require 'rudder_analytics_sync/client'
 
 module RudderAnalyticsSync

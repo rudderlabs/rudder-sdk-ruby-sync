@@ -71,6 +71,28 @@ analytics.track(
 )
 ```
 
+## Retry behavior
+
+Retries are disabled by default to preserve existing synchronous request behavior. You can enable a limited retry budget for HTTP `429`, HTTP `5xx`, and temporary network failures. When enabled, the SDK uses bounded exponential backoff with jitter and honors numeric and HTTP-date `Retry-After` headers.
+
+Retries block the calling thread until delivery succeeds or the retry budget is exhausted. A retry after an ambiguous network failure can also deliver the same event more than once.
+
+Configure retry behavior when you create the client:
+
+```ruby
+analytics = RudderAnalyticsSync::Client.new(
+  write_key: 'WRITE_KEY',
+  retry_enabled: true,
+  max_retries: 3,          # Set to 0 to disable retries
+  retry_base_delay: 0.1,   # Seconds
+  max_retry_delay: 30,     # Seconds, including Retry-After
+  retry_jitter_ratio: 0.2,
+  respect_retry_after: true
+)
+```
+
+`retries` is also accepted as a total-attempt count. For example, `retries: 4` permits one initial attempt and three retries.
+
 ## Gzip support
 
 From version 2.0.0, the Ruby SDK supports Gzip compression and it is enabled (set to `true`) by default. However, you can disable this feature by setting the `Gzip` parameter to `false` while initializing the SDK, as shown:
