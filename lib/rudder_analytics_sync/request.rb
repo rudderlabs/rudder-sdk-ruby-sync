@@ -24,10 +24,15 @@ module RudderAnalyticsSync
     end
 
     def post(path, payload, headers: DEFAULT_HEADERS)
-      uri = URI(data_plane_url)
-      return stub_post(path, payload) if stub
+      begin
+        uri = URI(data_plane_url)
+        return stub_post(path, payload) if stub
 
-      payload, headers = encode(payload, headers)
+        payload, headers = encode(payload, headers)
+      rescue StandardError => e
+        return error_handler.call(nil, nil, e, nil)
+      end
+
       execute_post(uri, path, payload, headers)
     end
 
@@ -109,7 +114,6 @@ module RudderAnalyticsSync
 
     def report_error(error, response)
       error_handler.call(response&.code, response&.body, error, response)
-      nil
     end
 
     def wait_before_retry(retry_number, response, reason)

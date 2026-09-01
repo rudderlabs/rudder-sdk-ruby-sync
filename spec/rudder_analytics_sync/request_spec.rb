@@ -51,7 +51,7 @@ describe RudderAnalyticsSync::Request do
                        { status: 200, body: 'OK' }
                      )
       client = RudderAnalyticsSync::Client.new(
-        write_key: 'key', retry_base_delay: 0, retry_jitter_ratio: 0
+        write_key: 'key', retry_enabled: true, retry_base_delay: 0, retry_jitter_ratio: 0
       )
       request = described_class.new(client)
       allow(request).to receive(:sleep_retry_delay)
@@ -70,7 +70,7 @@ describe RudderAnalyticsSync::Request do
           { status: 200, body: 'OK' }
         )
       client = RudderAnalyticsSync::Client.new(
-        write_key: 'key', retry_base_delay: 0.1, retry_jitter_ratio: 0
+        write_key: 'key', retry_enabled: true, retry_base_delay: 0.1, retry_jitter_ratio: 0
       )
       request = described_class.new(client)
       allow(request).to receive(:sleep_retry_delay)
@@ -87,7 +87,7 @@ describe RudderAnalyticsSync::Request do
                      .then
                      .to_return(status: 200, body: 'OK')
       client = RudderAnalyticsSync::Client.new(
-        write_key: 'key', retry_base_delay: 0, retry_jitter_ratio: 0
+        write_key: 'key', retry_enabled: true, retry_base_delay: 0, retry_jitter_ratio: 0
       )
       request = described_class.new(client)
 
@@ -122,7 +122,7 @@ describe RudderAnalyticsSync::Request do
                      .to_return(status: 503, body: 'Unavailable')
       callback_args = nil
       client = RudderAnalyticsSync::Client.new(
-        write_key: 'key', max_retries: 2, retry_base_delay: 0, retry_jitter_ratio: 0,
+        write_key: 'key', retry_enabled: true, max_retries: 2, retry_base_delay: 0, retry_jitter_ratio: 0,
         on_error: proc { |*args| callback_args = args }
       )
 

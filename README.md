@@ -73,13 +73,16 @@ analytics.track(
 
 ## Retry behavior
 
-The SDK retries transient delivery failures by default. It retries HTTP `429` and `5xx` responses and temporary network failures. The SDK uses bounded exponential backoff with jitter. It also honors numeric and HTTP-date `Retry-After` headers.
+Retries are disabled by default to preserve existing synchronous request behavior. You can enable a limited retry budget for HTTP `429`, HTTP `5xx`, and temporary network failures. When enabled, the SDK uses bounded exponential backoff with jitter and honors numeric and HTTP-date `Retry-After` headers.
+
+Retries block the calling thread until delivery succeeds or the retry budget is exhausted. A retry after an ambiguous network failure can also deliver the same event more than once.
 
 Configure retry behavior when you create the client:
 
 ```ruby
 analytics = RudderAnalyticsSync::Client.new(
   write_key: 'WRITE_KEY',
+  retry_enabled: true,
   max_retries: 3,          # Set to 0 to disable retries
   retry_base_delay: 0.1,   # Seconds
   max_retry_delay: 30,     # Seconds, including Retry-After

@@ -112,15 +112,86 @@ describe 'RudderAnalyticsSync protocol integration' do
   it 'reports terminal HTTP failures through the compatible callback' do
     @server = LocalDataPlane.new([{ status: 400, body: '{"error":"bad request"}' }])
     callback_args = nil
-    analytics = client(on_error: proc { |*args| callback_args = args })
+    analytics = client(on_error: proc { |*args| callback_args = args; :handled_by_application })
 
     result = analytics.track(user_id: 'user-1', event: 'Rejected Event')
 
-    expect(result).to be_nil
+    expect(result).to eq(:handled_by_application)
     expect(callback_args[0]).to eq('400')
     expect(callback_args[1]).to eq('{"error":"bad request"}')
     expect(callback_args[2]).to be_a(Net::HTTPClientException)
     expect(callback_args[3]).to be_a(Net::HTTPBadRequest)
+  end
+
+  it 'reports request-preparation failures through the compatible callback' do
+    callback_args = nil
+    analytics = RudderAnalyticsSync::Client.new(
+      write_key: 'write-key',
+      data_plane_url: 'http://bad host',
+      on_error: proc { |*args| callback_args = args; :handled_by_application }
+    )
+
+    result = analytics.track(user_id: 'user-1', event: 'Rejected Event')
+
+    expect(result).to eq(:handled_by_application)
+    expect(callback_args[0]).to be_nil
+    expect(callback_args[1]).to be_nil
+    expect(callback_args[2]).to be_a(URI::InvalidURIError)
+    expect(callback_args[3]).to be_nil
+  end
+
+  it 'does not retry by default' do
+    @server = LocalDataPlane.new([
+      { status: 429, body: '{"error":"rate limited"}' },
+      { status: 200 }
+    ])
+    callback_args = nil
+    analytics = RudderAnalyticsSync::Client.new(
+      write_key: 'write-key',
+      data_plane_url: @server.url,
+      http_options: { use_ssl: false },
+      on_error: proc { |*args| callback_args = args }
+    )
+
+    analytics.track(user_id: 'user-1', event: 'Rate Limited Event')
+
+    expect(@server.records.length).to eq(1)
+    expect(callback_args[0]).to eq('429')
+  end
+
+  it 'does not retry transient network failures by default' do
+    request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/batch')
+                   .to_raise(EOFError.new)
+                   .then
+                   .to_return(status: 200, body: 'OK')
+    callback_args = nil
+    analytics = RudderAnalyticsSync::Client.new(
+      write_key: 'write-key',
+      gzip: false,
+      on_error: proc { |*args| callback_args = args }
+    )
+
+    analytics.track(user_id: 'user-1', event: 'Network Failure Event')
+
+    expect(request_stub).to have_been_requested.once
+    expect(callback_args[0]).to be_nil
+    expect(callback_args[1]).to be_nil
+    expect(callback_args[2]).to be_a(EOFError)
+    expect(callback_args[3]).to be_nil
+  end
+
+  it 'propagates callback exceptions without invoking the callback again' do
+    @server = LocalDataPlane.new([{ status: 400, body: '{"error":"bad request"}' }])
+    callback_count = 0
+    analytics = client(on_error: proc do
+      callback_count += 1
+      raise 'callback failure'
+    end)
+
+    expect do
+      analytics.track(user_id: 'user-1', event: 'Rejected Event')
+    end.to raise_error(RuntimeError, 'callback failure')
+    expect(callback_count).to eq(1)
   end
 
   it 'retries a real rate-limited request within the configured budget' do
@@ -128,11 +199,12 @@ describe 'RudderAnalyticsSync protocol integration' do
       { status: 429, retry_after: '0', body: '{"error":"rate limited"}' },
       { status: 200 }
     ])
-    analytics = client(max_retries: 1, retry_base_delay: 0, retry_jitter_ratio: 0)
+    analytics = client(retry_enabled: true, max_retries: 1, retry_base_delay: 0, retry_jitter_ratio: 0)
 
     response = analytics.track(user_id: 'user-1', event: 'Retried Event')
 
     expect(response.code).to eq('200')
     expect(@server.records.length).to eq(2)
+    expect(@server.records[0][:payload]).to eq(@server.records[1][:payload])
   end
 end

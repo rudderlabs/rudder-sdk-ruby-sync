@@ -33,7 +33,7 @@ describe RudderAnalyticsSync::Configuration do
     it 'has bounded retry defaults' do
       config = described_class.new(write_key: 'test')
 
-      expect(config.retry_enabled).to eq(true)
+      expect(config.retry_enabled).to eq(false)
       expect(config.max_retries).to eq(3)
       expect(config.retry_base_delay).to eq(0.1)
       expect(config.max_retry_delay).to eq(30.0)
@@ -89,5 +89,12 @@ describe RudderAnalyticsSync::Configuration do
     config = described_class.new(write_key: 'test', retries: 4)
 
     expect(config.max_retries).to eq(3)
+  end
+
+  it 'requires retries to be enabled explicitly' do
+    config = described_class.new(write_key: 'test', max_retries: 4)
+
+    expect(config.retry_enabled).to eq(false)
+    expect(config.max_retries).to eq(4)
   end
 end

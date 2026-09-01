@@ -29,7 +29,7 @@ module RudderAnalyticsSync
     private
 
     def configure_retry(settings)
-      @retry_enabled = settings.key?(:retry_enabled) ? settings[:retry_enabled] : true
+      @retry_enabled = settings.key?(:retry_enabled) ? settings[:retry_enabled] : false
       @max_retries = normalize_max_retries(settings)
       @retry_base_delay = non_negative_number(settings.fetch(:retry_base_delay, Retry::DEFAULT_BASE_DELAY))
       @max_retry_delay = non_negative_number(settings.fetch(:max_retry_delay, Retry::DEFAULT_MAX_DELAY))
