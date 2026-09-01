@@ -116,6 +116,10 @@ analytics = RudderAnalyticsSync::Client.new(
 
 Refer to the [RudderStack Ruby SDK documentation](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-ruby-sdk-sync/) for more information on the supported event types.
 
+## Releasing
+
+Maintainers must use the automated release process in [RELEASING.md](RELEASING.md).
+
 | From version 2.0.0, the Ruby SDK supports [`screen`](https://www.rudderstack.com/docs/event-spec/standard-events/screen/) events. |
 | :-----|
 
