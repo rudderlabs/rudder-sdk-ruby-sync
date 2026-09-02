@@ -32,7 +32,7 @@ describe RudderAnalyticsSync::Batch do
     expected_context = {
       'foo' => 'bar',
       'library' => {
-        'name' => 'rudder-sdk-ruby-sync', 'version' => '2.0.1'
+        'name' => 'rudder-sdk-ruby-sync', 'version' => RudderAnalyticsSync::VERSION
       }
     }
     request_stub = stub_request(:post, 'https://hosted.rudderlabs.com/v1/batch')
