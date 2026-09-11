@@ -1,6 +1,9 @@
 <p align="center">
   <a href="https://rudderstack.com/">
-    <img src="https://user-images.githubusercontent.com/59817155/121357083-1c571300-c94f-11eb-8cc7-ce6df13855c9.png">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://cdn.rudderlabs.com/brand/logo_watermark_dark.png">
+      <img alt="RudderStack" width="512" src="https://cdn.rudderlabs.com/brand/logo_watermark_light.png">
+    </picture>
   </a>
 </p>
 
