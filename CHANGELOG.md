@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.1](https://github.com/rudderlabs/rudder-sdk-ruby-sync/compare/v2.1.0...v2.1.1) (2026-09-11)
+
+
+### Miscellaneous
+
+* sdk-5435 update codeowners ([#34](https://github.com/rudderlabs/rudder-sdk-ruby-sync/issues/34)) ([8573090](https://github.com/rudderlabs/rudder-sdk-ruby-sync/commit/85730906e683993c5c03909bff1e2d35da35e986))
+* update readme with new branding images ([#30](https://github.com/rudderlabs/rudder-sdk-ruby-sync/issues/30)) ([b63fa92](https://github.com/rudderlabs/rudder-sdk-ruby-sync/commit/b63fa92a5f61dabe7825039b8841b4be1047d7b6))
+
 ## [2.1.0](https://github.com/rudderlabs/rudder-sdk-ruby-sync/compare/v2.0.1...v2.1.0) (2026-09-02)
 
 
