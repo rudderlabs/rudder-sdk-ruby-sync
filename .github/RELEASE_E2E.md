@@ -2,7 +2,9 @@
 
 The published-package workflow runs the full central E2E suite for the exact stable release version. It uses the existing release App and waits for delivery validation and cleanup. The central workflow checks the release tag against the immutable event commit and `master` ancestry. It installs the exact public registry package and verifies native package metadata and integrity evidence.
 
-Acceptance starts only after the existing publisher succeeds. Existing native build, security, and publication checks remain in place. Release-complete notifications, where configured, wait for published-package acceptance.
+Acceptance starts only after the existing publisher verifies the exact RubyGems version. Existing native build, security, and publication checks remain in place. The publisher uses Ubuntu 24.04 because the pinned Ruby 2.7.6 setup fails on Ubuntu 26.04; the dispatch-only E2E job uses `ubuntu-latest`.
+
+The release announcement reports completion only after registry verification and full E2E delivery and cleanup succeed. If the upload succeeds but either check fails or remains incomplete, it reports "published; validation failed or incomplete" instead. Links and check results appear in a non-broadcast Slack thread reply. Validation-only retries do not upload or reannounce.
 
 Full source-candidate E2E before publication is a separate rollout. Do not treat native tests or this post-publication check as that gate.
 
@@ -22,4 +24,4 @@ A published package remains published if acceptance fails. Do not rerun a succes
 
 ## Rollout
 
-Tracked in [SDK-5966](https://linear.app/rudderstack/issue/SDK-5966). Merge only after [central PR #32](https://github.com/rudderlabs/rudder-sdk-e2e-tests/pull/32) and [shared-action PR #5](https://github.com/rudderlabs/github-action-sdk-e2e/pull/5) are reviewed and merged. The action pin is an existing commit from PR #5 and must be verified or refreshed before merge. Hosted acceptance remains pending the next normal release. Do not create a release solely to test this wiring.
+Tracked in [SDK-5966](https://linear.app/rudderstack/issue/SDK-5966). Keep this PR draft until [central PR #32](https://github.com/rudderlabs/rudder-sdk-e2e-tests/pull/32) resolves [SDK-5978](https://linear.app/rudderstack/issue/SDK-5978), including the cleanup-budget finding, and the reviewed [SDK-5977](https://linear.app/rudderstack/issue/SDK-5977) shared workflow is available. The existing action pin from [shared-action PR #5](https://github.com/rudderlabs/github-action-sdk-e2e/pull/5) must be verified or refreshed before merge. Hosted acceptance remains pending the next normal release. Do not create a release solely to test this wiring.
