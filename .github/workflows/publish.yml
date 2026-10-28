@@ -3,45 +3,28 @@ name: Publish gem
 on:
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      version:
-        description: Exact published rudder_analytics_sync version (without v)
-        required: true
-        type: string
-      tag:
-        description: Existing published release tag
-        required: true
-        type: string
-      release_commit:
-        description: Full commit SHA pointed to by the release tag
-        required: true
-        type: string
 
-permissions: {}
+permissions:
+  contents: read
 
-# A retry and publication for the same tag cannot overlap. GitHub permits only
-# one pending run per group; repeated retries for a busy tag can replace a pending retry.
 concurrency:
-  group: publish-gem-${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.event.release.tag_name }}
+  group: publish-gem-${{ github.event.release.tag_name }}
   cancel-in-progress: false
 
 jobs:
   publish:
     name: Publish to RubyGems
-    if: ${{ github.event_name == 'release' && github.ref == format('refs/tags/{0}', github.event.release.tag_name) && !github.event.release.draft && !github.event.release.prerelease }}
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+    if: ${{ !github.event.release.prerelease }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: release
     env:
       RELEASE_TAG: ${{ github.event.release.tag_name }}
     permissions:
-      contents: read # actions/checkout
-      id-token: write # RubyGems OIDC trusted publishing
-    outputs:
-      version: ${{ steps.release.outputs.version }}
-      release_commit: ${{ steps.release.outputs.release_commit }}
-      pushed: ${{ steps.push.outputs.pushed }}
+      contents: read
+      id-token: write # Required for RubyGems OpenID Connect trusted publishing.
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -52,7 +35,6 @@ jobs:
       - name: Check out the release tag
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
         with:
-          ref: ${{ github.event.release.tag_name }}
           persist-credentials: false
 
       - name: Set up Ruby
@@ -60,16 +42,11 @@ jobs:
         with:
           ruby-version: '2.7'
 
-      - name: Validate the release version and origin
+      - name: Validate the release version
         id: release
-        env:
-          EXPECTED_COMMIT: ${{ github.sha }}
         run: |
           version="$(./scripts/publish_gem.sh validate)"
-          release_commit="$(git rev-parse HEAD)"
-          test "$release_commit" = "$EXPECTED_COMMIT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "release_commit=$release_commit" >> "$GITHUB_OUTPUT"
 
       - name: Build the gem
         env:
@@ -80,195 +57,62 @@ jobs:
         uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
 
       - name: Publish the gem
-        id: push
         env:
           GEM_FILE: rudder_analytics_sync-${{ steps.release.outputs.version }}.gem
-        run: |
-          gem push "$GEM_FILE"
-          echo 'pushed=true' >> "$GITHUB_OUTPUT"
+        run: gem push "$GEM_FILE"
 
       - name: Verify the published version
         run: ./scripts/publish_gem.sh verify
 
-  retry-ref-check:
-    name: Reject retries outside master
-    if: ${{ github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions: {}
-    steps:
-      - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
-        with:
-          egress-policy: audit
-      - name: Require master workflow ref
-        env:
-          WORKFLOW_REF: ${{ github.ref }}
-        run: |
-          if [[ "$WORKFLOW_REF" != refs/heads/master ]]; then
-            echo 'Validation-only retry must be dispatched from master.' >&2
-            exit 1
-          fi
-
-  retry-validation:
-    name: Verify existing release (no publish)
-    needs: retry-ref-check
-    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && needs.retry-ref-check.result == 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+  published-e2e:
+    name: Accept exact published package
+    needs: publish
     permissions:
-      contents: read # GitHub release metadata and checkout
-    env:
-      RELEASE_TAG: ${{ inputs.tag }}
-      EXPECTED_VERSION: ${{ inputs.version }}
-      EXPECTED_COMMIT: ${{ inputs.release_commit }}
-      GH_TOKEN: ${{ github.token }}
-    outputs:
-      version: ${{ steps.release.outputs.version }}
-      release_commit: ${{ steps.release.outputs.release_commit }}
-    steps:
-      - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
-        with:
-          egress-policy: audit
+      contents: read
+    uses: ./.github/workflows/published-sdk-e2e.yml
+    with:
+      package-version: ${{ needs.publish.outputs.version }}
+    secrets:
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
-      - name: Validate release metadata and inputs
-        run: |
-          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
-          [[ "$EXPECTED_VERSION" == "${RELEASE_TAG#v}" ]]
-          [[ "$EXPECTED_COMMIT" =~ ^[0-9a-f]{40}$ ]]
-          python3 - <<'PY'
-          import json
-          import os
-          from urllib.request import Request, urlopen
-
-          repo = os.environ['GITHUB_REPOSITORY']
-          tag = os.environ['RELEASE_TAG']
-          request = Request(
-              f'https://api.github.com/repos/{repo}/releases/tags/{tag}',
-              headers={'Authorization': f'Bearer {os.environ["GH_TOKEN"]}',
-                       'Accept': 'application/vnd.github+json'},
-          )
-          with urlopen(request, timeout=30) as response:
-              release = json.load(response)
-          if (release.get('tag_name') != tag or release.get('draft') or
-                  release.get('prerelease') or not release.get('published_at')):
-              raise SystemExit('Expected an existing published, non-prerelease release')
-          PY
-
-      - name: Check out the existing release tag
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
-        with:
-          ref: ${{ inputs.tag }}
-          persist-credentials: false
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
-        with:
-          ruby-version: '2.7'
-
-      - name: Verify tag, source and exact public artifact
-        id: release
-        run: |
-          release_commit="$(git rev-parse HEAD)"
-          test "$release_commit" = "$EXPECTED_COMMIT"
-          version="$(./scripts/publish_gem.sh validate)"
-          test "$version" = "$EXPECTED_VERSION"
-          ./scripts/publish_gem.sh verify
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "release_commit=$release_commit" >> "$GITHUB_OUTPUT"
-
-  acceptance:
-    name: Full published-package E2E
-    needs: [publish, retry-validation]
-    if: ${{ !cancelled() && ((github.event_name == 'release' && github.ref == format('refs/tags/{0}', github.event.release.tag_name) && !github.event.release.draft && !github.event.release.prerelease && needs.publish.result == 'success') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && needs.retry-validation.result == 'success')) }}
+  notify-release:
+    name: Notify accepted release
+    needs: published-e2e
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    timeout-minutes: 55
-    permissions: {}
-    env:
-      PACKAGE_VERSION: ${{ needs.publish.outputs.version || needs.retry-validation.outputs.version }}
-      RELEASE_COMMIT: ${{ needs.publish.outputs.release_commit || needs.retry-validation.outputs.release_commit }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
         with:
           egress-policy: audit
 
-      - name: Create a central validation token
-        id: token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
-        with:
-          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
-          private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
-          owner: rudderlabs
-          repositories: rudder-sdk-e2e-tests
-          permission-actions: write
-
-      # RESOLVE: replace the existing SHA with the reviewed SDK-5962 full SHA after SDK-5961/SDK-5962 land on main.
-      # Draft only: the current shared action does not implement package-version/source-sha.
-      - name: Validate the exact published package and wait for cleanup
-        uses: rudderlabs/github-action-sdk-e2e@9bcd97f1b28b1f2c3c7726ccae1bf435f4acf9c4 # current pin, NOT published-mode capable
-        with:
-          token: ${{ steps.token.outputs.token }}
-          suite: full
-          package-version: ${{ env.PACKAGE_VERSION }}
-          source-sha: ${{ env.RELEASE_COMMIT }}
-
-  notify:
-    name: Report release acceptance
-    needs: [publish, retry-validation, acceptance]
-    if: ${{ always() && !cancelled() && ((github.event_name == 'release' && github.ref == format('refs/tags/{0}', github.event.release.tag_name) && !github.event.release.draft && !github.event.release.prerelease && (needs.publish.outputs.pushed == 'true' || needs.publish.result == 'success')) || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && needs.retry-validation.result != 'skipped')) }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions: {}
-    env:
-      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.event.release.tag_name }}
-      ACCEPTANCE_RESULT: ${{ needs.acceptance.result }}
-      VERIFIED_ARTIFACT: ${{ needs.publish.result == 'success' || needs.retry-validation.result == 'success' }}
-      PUSHED_GEM: ${{ needs.publish.outputs.pushed == 'true' }}
-    steps:
-      - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
-        with:
-          egress-policy: audit
-
-      - name: Send release outcome to Slack
+      - name: Send message to Slack channel
+        id: slack
         uses: slackapi/slack-github-action@007b2c3c751a190b6f0f040e47ed024deaa72844 # v1.23.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          PROJECT_NAME: 'Ruby(Sync) SDK'
         with:
-          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          channel-id: "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}"
           payload: |
-            {"text":"Ruby(Sync) SDK ${{ env.RELEASE_TAG }}: ${{ env.VERIFIED_ARTIFACT == 'true' && env.ACCEPTANCE_RESULT == 'success' && 'release complete — exact RubyGems artifact verified and full published E2E accepted' || env.PUSHED_GEM == 'true' && 'gem pushed, but exact artifact verification or full published E2E acceptance failed or was not delivered; check RubyGems before retrying and do not republish' || 'validation-only retry failed; confirm the exact public artifact before retrying, do not republish' }}. <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Workflow>"}
-
-      - name: Fail the run if acceptance did not succeed
-        if: ${{ needs.acceptance.result != 'success' }}
-        run: exit 1
-
-  acceptance-gate:
-    name: Release acceptance gate
-    needs: [publish, retry-ref-check, retry-validation, acceptance, notify]
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions: {}
-    steps:
-      - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
-        with:
-          egress-policy: audit
-      - name: Require verified artifact, full E2E and notification
-        env:
-          PUBLISH_RESULT: ${{ needs.publish.result }}
-          RETRY_REF_RESULT: ${{ needs.retry-ref-check.result }}
-          RETRY_RESULT: ${{ needs.retry-validation.result }}
-          ACCEPTANCE_RESULT: ${{ needs.acceptance.result }}
-          NOTIFY_RESULT: ${{ needs.notify.result }}
-        run: |
-          if [[ "$RETRY_REF_RESULT" == failure ]] ||
-             [[ "$PUBLISH_RESULT" != success && "$RETRY_RESULT" != success ]] ||
-             [[ "$ACCEPTANCE_RESULT" != success || "$NOTIFY_RESULT" != success ]]; then
-            echo 'Release acceptance incomplete; inspect publication, validation, central run and notification.' >&2
-            exit 1
-          fi
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Release: <${{ github.event.release.html_url }}|${{ github.event.release.tag_name }}>*"
+                  }
+                }
+              ]
+            }
