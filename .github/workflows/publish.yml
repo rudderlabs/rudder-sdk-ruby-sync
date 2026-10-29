@@ -38,7 +38,6 @@ jobs:
       - name: Check out the release tag
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
         with:
-          ref: ${{ github.sha }}
           persist-credentials: false
 
       - name: Set up Ruby
@@ -88,7 +87,7 @@ jobs:
   notify-release:
     name: Report final release outcome
     needs: [publish, published-e2e]
-    if: ${{ always() && github.event_name == 'release' && !github.event.release.prerelease }}
+    if: ${{ always() && github.event_name == 'release' && !github.event.release.prerelease && github.run_attempt == '1' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions: {}
@@ -100,6 +99,7 @@ jobs:
       VERIFIED: ${{ needs.publish.outputs.verified }}
       PUBLISH_RESULT: ${{ needs.publish.result }}
       E2E_RESULT: ${{ needs['published-e2e'].result }}
+      CENTRAL_RUN_URL: ${{ needs['published-e2e'].outputs.run-url }}
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -130,6 +130,7 @@ jobs:
             --arg outcome "$outcome" \
             '{text: ("Ruby (Sync) SDK " + $tag + " (" + $date + "): " + $outcome + "\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>"), unfurl_links: false, unfurl_media: false}')"
           printf 'payload=%s\n' "$payload" >> "$GITHUB_OUTPUT"
+          printf 'Ruby Sync SDK %s: %s\nPublication: %s; registry verified: %s; E2E: %s.\nCentral E2E: %s\n' "$RELEASE_TAG" "$outcome" "$PUBLISH_RESULT" "$VERIFIED" "$E2E_RESULT" "$CENTRAL_RUN_URL" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Send the short release announcement
         id: root
@@ -169,8 +170,8 @@ jobs:
             --arg publish_result "$PUBLISH_RESULT" \
             --arg upload_result "$upload_result" \
             --arg registry_result "$registry_result" \
-            --arg e2e_result "$e2e_result" \
-            '{thread_ts: $ts, reply_broadcast: false, text: ("<" + $release_url + "|Release> | " + $registry_link + " | <" + $run_url + "|Publication and E2E checks>\nPublication job: " + $publish_result + ". Gem upload: " + $upload_result + ". RubyGems verification: " + $registry_result + ". Full E2E delivery and cleanup: " + $e2e_result + "."), unfurl_links: false, unfurl_media: false}')"
+            --arg e2e_result "$e2e_result" --arg central "$CENTRAL_RUN_URL" \
+            '{thread_ts: $ts, reply_broadcast: false, text: ("<" + $release_url + "|Release> | " + $registry_link + " | <" + $run_url + "|Publication and E2E checks>\nPublication job: " + $publish_result + ". Gem upload: " + $upload_result + ". RubyGems verification: " + $registry_result + ". Full E2E delivery and cleanup: " + $e2e_result + "." + (if $central != "" then "\n<" + $central + "|Central E2E run>" else "" end)), unfurl_links: false, unfurl_media: false}')"
           printf 'payload=%s\n' "$payload" >> "$GITHUB_OUTPUT"
 
       - name: Reply with release links and check results

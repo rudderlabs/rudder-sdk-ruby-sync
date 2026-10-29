@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
 require 'json'
 require 'open3'
 require 'tmpdir'
@@ -21,14 +20,22 @@ describe 'published gem workflow' do
   end
 
   def build_payload(step_name, environment)
+    %w[bash jq].each do |tool|
+      available = ENV.fetch('PATH', '').split(File::PATH_SEPARATOR).any? { |directory| File.executable?(File.join(directory, tool)) }
+      skip "#{tool} is required for this workflow script test" unless available
+    end
     Dir.mktmpdir do |directory|
       output = File.join(directory, 'github_output')
       script = step(notification, step_name).fetch('run')
       _stdout, stderr, status = Open3.capture3(
-        environment.merge('GITHUB_OUTPUT' => output, 'SLACK_BOT_TOKEN' => nil, 'RELEASE_PRIVATE_KEY' => nil),
+        environment.merge('GITHUB_OUTPUT' => output, 'GITHUB_STEP_SUMMARY' => File.join(directory, 'summary'), 'SLACK_BOT_TOKEN' => nil, 'RELEASE_PRIVATE_KEY' => nil),
         'bash', '-e', '-o', 'pipefail', '-c', script
       )
       payload = File.exist?(output) ? JSON.parse(File.read(output).delete_prefix('payload=')) : nil
+      if step_name == 'Build the root notification payload' && status.success?
+        summary = File.read(File.join(directory, 'summary'))
+        expect(summary).to include(environment.fetch('RELEASE_TAG'), environment.fetch('E2E_RESULT'), environment.fetch('CENTRAL_RUN_URL'))
+      end
       [payload, stderr, status]
     end
   end
@@ -42,7 +49,8 @@ describe 'published gem workflow' do
       'UPLOADED' => 'true',
       'VERIFIED' => 'true',
       'PUBLISH_RESULT' => 'success',
-      'E2E_RESULT' => 'success'
+      'E2E_RESULT' => 'success',
+      'CENTRAL_RUN_URL' => 'https://github.com/rudderlabs/rudder-sdk-e2e-tests/actions/runs/456'
     }
   end
 
@@ -50,7 +58,7 @@ describe 'published gem workflow' do
     expect(workflow['on'] || workflow[true]).to eq('release' => { 'types' => ['published'] })
     expect(publish.fetch('if')).to include('!github.event.release.prerelease')
     expect(publish.fetch('runs-on')).to eq('ubuntu-24.04')
-    expect(step(publish, 'Check out the release tag').fetch('with').fetch('ref')).to eq('${{ github.sha }}')
+    expect(step(publish, 'Check out the release tag').fetch('with')).not_to have_key('ref')
     expect(publish.fetch('permissions').fetch('id-token')).to eq('write')
 
     names = publish.fetch('steps').map { |item| item['name'] }
@@ -71,6 +79,7 @@ describe 'published gem workflow' do
 
     retry_job = retry_workflow.fetch('jobs').fetch('validate')
     expect(retry_job.fetch('uses')).to match(%r{\Arudderlabs/github-action-sdk-e2e/\.github/workflows/published-sdk-e2e\.yml@[0-9a-f]{40}\z})
+    expect(retry_job.fetch('uses')).to end_with('@b6de40cc65abe8ee6c6593aac1787aea746b671f')
     expect(retry_job.fetch('with')).to include('package-version' => '${{ inputs.package-version || github.ref_name }}',
                                                'release-app-client-id' => '${{ vars.RELEASE_APP_CLIENT_ID }}')
     expect(retry_job.fetch('secrets')).to eq('RELEASE_PRIVATE_KEY' => '${{ secrets.RELEASE_PRIVATE_KEY }}')
@@ -81,7 +90,7 @@ describe 'published gem workflow' do
 
   it 'runs final notification for stable releases even when publication fails or is cancelled' do
     expect(notification.fetch('needs')).to contain_exactly('publish', 'published-e2e')
-    expect(notification.fetch('if')).to include('always()', "github.event_name == 'release'", '!github.event.release.prerelease')
+    expect(notification.fetch('if')).to include('always()', "github.event_name == 'release'", '!github.event.release.prerelease', "github.run_attempt == '1'")
     expect(notification.fetch('if')).not_to include('uploaded')
     expect(notification.fetch('env')).to include(
       'UPLOADED' => '${{ needs.publish.outputs.uploaded }}',
@@ -125,7 +134,7 @@ describe 'published gem workflow' do
     expect(status).to be_success, stderr
     expect(payload).to include('thread_ts' => '1234567890.123456', 'reply_broadcast' => false,
                                'unfurl_links' => false, 'unfurl_media' => false)
-    expect(payload.fetch('text')).to include('RubyGems verification: verified', 'Full E2E delivery and cleanup: success')
+    expect(payload.fetch('text')).to include('RubyGems verification: verified', 'Full E2E delivery and cleanup: success', 'https://github.com/rudderlabs/rudder-sdk-e2e-tests/actions/runs/456')
 
     missing_version, _stderr, status = build_payload(
       'Build the thread reply payload', notification_environment.merge('ROOT_TS' => '1234567890.123456',
