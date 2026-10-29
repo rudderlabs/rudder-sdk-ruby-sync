@@ -70,12 +70,11 @@ describe 'published gem workflow' do
     expect(acceptance.fetch('uses')).to eq('./.github/workflows/published-sdk-e2e.yml')
 
     retry_job = retry_workflow.fetch('jobs').fetch('validate')
-    expect(retry_job.fetch('runs-on')).to eq('ubuntu-latest')
-    expect(step(retry_job, 'Validate the exact public package, delivery, and cleanup').fetch('with').fetch('suite')).to eq('full')
-    expect(step(retry_job, 'Create a central validation token').fetch('with')).to include(
-      'repositories' => 'rudder-sdk-e2e-tests', 'permission-actions' => 'write'
-    )
-    expect(retry_job.fetch('steps').map { |item| item['name'] }).to include('Require an exact release tag')
+    expect(retry_job.fetch('uses')).to match(%r{\Arudderlabs/github-action-sdk-e2e/\.github/workflows/published-sdk-e2e\.yml@[0-9a-f]{40}\z})
+    expect(retry_job.fetch('with')).to include('package-version' => '${{ inputs.package-version || github.ref_name }}',
+                                               'release-app-client-id' => '${{ vars.RELEASE_APP_CLIENT_ID }}')
+    expect(retry_job.fetch('secrets')).to eq('RELEASE_PRIVATE_KEY' => '${{ secrets.RELEASE_PRIVATE_KEY }}')
+    expect(retry_job).not_to have_key('steps')
     expect(retry_workflow['on'] || retry_workflow[true]).to have_key('workflow_dispatch')
     expect(retry_workflow.to_s).not_to include('gem push', 'SLACK_BOT_TOKEN')
   end
