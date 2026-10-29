@@ -27,3 +27,7 @@ The first automated release uses `v2.0.1` as its baseline. A `feat` commit after
 The publish workflow checks out the release tag. It then confirms that the tag, source version, and gemspec version match. RubyGems uses GitHub OpenID Connect trusted publishing, so the workflow does not store a long-lived RubyGems API key.
 
 If publication fails, fix the cause and rerun the failed workflow. Do not create a replacement tag for the same version.
+
+## Published-package E2E acceptance
+
+Release completion also requires the exact public package to pass full E2E delivery and cleanup checks. See [release acceptance and validation-only retries](.github/RELEASE_E2E.md). Hosted acceptance remains pending the next normal release.
