@@ -23,7 +23,6 @@ on:
 permissions:
   contents: read
 
-# Do not cancel live validation; the central workflow owns locking and cleanup.
 jobs:
   validate:
     uses: rudderlabs/github-action-sdk-e2e/.github/workflows/published-sdk-e2e.yml@b6de40cc65abe8ee6c6593aac1787aea746b671f # v1.0.0
