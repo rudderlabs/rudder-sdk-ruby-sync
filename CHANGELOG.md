@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.1.1](https://github.com/rudderlabs/rudder-sdk-ruby-sync/compare/v2.1.0...v2.1.1) (2026-10-30)
+
+
+### Miscellaneous
+
+* apply security-first dependabot policy ([#36](https://github.com/rudderlabs/rudder-sdk-ruby-sync/issues/36)) ([f980e5c](https://github.com/rudderlabs/rudder-sdk-ruby-sync/commit/f980e5c3b36de07a299a1dc743e68737b2ac61b6))
+* move the PR title check to check-pr-title v2.0.3 ([#37](https://github.com/rudderlabs/rudder-sdk-ruby-sync/issues/37)) ([9ea7d58](https://github.com/rudderlabs/rudder-sdk-ruby-sync/commit/9ea7d58e8c4c0eb326717e8b90cf8ed512f2da01))
+* retain resolved bundler dependency inventory ([#39](https://github.com/rudderlabs/rudder-sdk-ruby-sync/issues/39)) ([bd95ce9](https://github.com/rudderlabs/rudder-sdk-ruby-sync/commit/bd95ce95f0bc08557bef70db8c0f97be9679ff5f))
+* sdk-5435 update codeowners ([#34](https://github.com/rudderlabs/rudder-sdk-ruby-sync/issues/34)) ([8573090](https://github.com/rudderlabs/rudder-sdk-ruby-sync/commit/85730906e683993c5c03909bff1e2d35da35e986))
+* sdk-5983 run full live e2e on release prs ([#41](https://github.com/rudderlabs/rudder-sdk-ruby-sync/issues/41)) ([1ae950d](https://github.com/rudderlabs/rudder-sdk-ruby-sync/commit/1ae950dae70a2da481839a16f8c35b320d5493ed))
+* update readme with new branding images ([#30](https://github.com/rudderlabs/rudder-sdk-ruby-sync/issues/30)) ([b63fa92](https://github.com/rudderlabs/rudder-sdk-ruby-sync/commit/b63fa92a5f61dabe7825039b8841b4be1047d7b6))
+* validate the exact published ruby sync gem ([#38](https://github.com/rudderlabs/rudder-sdk-ruby-sync/issues/38)) ([53c5156](https://github.com/rudderlabs/rudder-sdk-ruby-sync/commit/53c5156e7086a8ef8569151aad20a49f037a8727))
+* verify published e2e with per-run cleanup ([#40](https://github.com/rudderlabs/rudder-sdk-ruby-sync/issues/40)) ([8d7fd3b](https://github.com/rudderlabs/rudder-sdk-ruby-sync/commit/8d7fd3bd0dcd22030b441f7120cc532094953913))
+
 ## [2.1.0](https://github.com/rudderlabs/rudder-sdk-ruby-sync/compare/v2.0.1...v2.1.0) (2026-09-02)
 
 
