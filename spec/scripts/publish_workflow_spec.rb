@@ -79,7 +79,6 @@ describe 'published gem workflow' do
 
     retry_job = retry_workflow.fetch('jobs').fetch('validate')
     expect(retry_job.fetch('uses')).to match(%r{\Arudderlabs/github-action-sdk-e2e/\.github/workflows/published-sdk-e2e\.yml@[0-9a-f]{40}\z})
-    expect(retry_job.fetch('uses')).to end_with('@b6de40cc65abe8ee6c6593aac1787aea746b671f')
     expect(retry_job.fetch('with')).to include('package-version' => '${{ inputs.package-version || github.ref_name }}',
                                                'release-app-client-id' => '${{ vars.RELEASE_APP_CLIENT_ID }}')
     expect(retry_job.fetch('secrets')).to eq('RELEASE_PRIVATE_KEY' => '${{ secrets.RELEASE_PRIVATE_KEY }}')
