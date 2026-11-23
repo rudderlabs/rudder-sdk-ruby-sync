@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+# Start before the SDK is loaded so that SimpleCov measures all of lib/.
+require 'simplecov'
+SimpleCov.start do
+  add_filter '/spec/'
+  enable_coverage :branch
+end
+
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'rudder_analytics_sync'
 require 'webmock/rspec'

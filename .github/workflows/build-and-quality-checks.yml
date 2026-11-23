@@ -27,6 +27,18 @@ jobs:
         run: bundle install
       - name: Run tests
         run: bundle exec rake
+      - name: Report coverage
+        run: |
+          line="$(ruby -rjson -e 'puts JSON.parse(File.read("coverage/.last_run.json")).dig("result", "line")')"
+          echo "Ruby sync unit test line coverage: ${line}%" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Upload coverage report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-report
+          include-hidden-files: true
+          path: |
+            coverage/.resultset.json
+            coverage/.last_run.json
       # - name: Install rubocop
       #   run: gem install rubocop
       # - name: Install rubocop-rspec

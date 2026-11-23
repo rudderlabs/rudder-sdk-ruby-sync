@@ -15,6 +15,7 @@ GEM
       bigdecimal
       rexml
     diff-lcs (1.6.2)
+    docile (1.4.1)
     hashdiff (1.2.1)
     io-console (0.9.5)
     method_source (1.1.0)
@@ -61,6 +62,12 @@ GEM
       parser (>= 3.3.7.2)
       prism (~> 1.7)
     ruby-progressbar (1.13.0)
+    simplecov (0.22.0)
+      docile (~> 1.1)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-html (0.13.2)
+    simplecov_json_formatter (0.1.4)
     timecop (0.9.11)
     unicode-display_width (2.6.0)
     webmock (3.34.0)
@@ -79,6 +86,7 @@ DEPENDENCIES
   rspec (~> 3.0)
   rubocop (= 1.23.0)
   rudder_analytics_sync!
+  simplecov (~> 0.22)
   timecop (~> 0.9.5)
   webmock (~> 3.7)
 
