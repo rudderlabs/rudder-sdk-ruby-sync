@@ -2,6 +2,12 @@
 
 # Start before the SDK is loaded so that SimpleCov measures all of lib/.
 require 'simplecov'
+require 'simplecov_json_formatter'
+
+SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new(
+  [SimpleCov::Formatter::HTMLFormatter, SimpleCov::Formatter::JSONFormatter]
+)
+
 SimpleCov.start do
   # Count every SDK file, including files loaded before SimpleCov starts (version.rb via the gemspec) or never loaded.
   track_files 'lib/**/*.rb'
